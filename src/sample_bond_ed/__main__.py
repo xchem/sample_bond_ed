@@ -1,8 +1,23 @@
 from argparse import ArgumentParser
 
+import gemmi
+
 from . import __version__
 
 __all__ = ["main"]
+
+
+def sample_at_positions(positions: list[gemmi.Position]):
+    ...
+
+
+def sample_along_bond(
+    xmap,
+    bond,
+    rate: int = 10,
+) -> list[float]:
+
+    ...
 
 
 def main(args=None):

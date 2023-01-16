@@ -13,7 +13,10 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 description = "One line description of your module"
-dependencies = [] # Add project dependencies here, e.g. ["click", "numpy"]
+dependencies = [
+    "gemmi",
+    "fire",
+] # Add project dependencies here, e.g. ["click", "numpy"]
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.rst"
