@@ -1,14 +1,14 @@
 API
 ===
 
-.. automodule:: python3_pip_skeleton
+.. automodule:: sample_bond_ed
 
-    ``python3_pip_skeleton``
+    ``sample_bond_ed``
     -----------------------------------
 
-This is the internal API reference for python3_pip_skeleton
+This is the internal API reference for sample_bond_ed
 
-.. data:: python3_pip_skeleton.__version__
+.. data:: sample_bond_ed.__version__
     :type: str
 
     Version number as calculated by https://github.com/pypa/setuptools_scm
