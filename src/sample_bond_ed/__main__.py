@@ -7,7 +7,7 @@ from . import __version__
 __all__ = ["main"]
 
 
-def sample_at_positions(positions: list[gemmi.Position]):
+def sample_at_positions(positions: list[gemmi.Position]) -> list[float]:
     ...
 
 
