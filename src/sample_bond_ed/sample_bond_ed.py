@@ -80,7 +80,10 @@ def make_sample_dataframe(samples: Samples):
     num_samples = len(samples)
     for j, sample in enumerate(samples):
         records.append(
-            {PLOT_X: f"{float(j/num_samples)}%", PLOT_Y: round(sample, 2)},
+            {
+                PLOT_X: f"{round(100*(float(j)/num_samples))}%",
+                PLOT_Y: round(sample, 2),
+            },
         )
 
     return pd.DataFrame(records)
@@ -182,11 +185,17 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", type=Path)
     parser.add_argument(
         "--atom_1_id",
-        help='A selector for a single atom of the form CHAIN/RESIDUE/NAME, such as "C/LIG/C1"',
+        help="""
+        A selector for a single atom of the form CHAIN/RESIDUE/NAME, 
+        such as \"C/LIG/C1\"
+        """,
     )
     parser.add_argument(
         "--atom_2_id",
-        help='A selector for a single atom, such as "///222/C1"',
+        help="""
+        A selector for a single atom of the form CHAIN/RESIDUE/NAME, 
+        such as \"C/LIG/C1\"
+        """,
     )
     args = parser.parse_args()
 
