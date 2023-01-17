@@ -78,10 +78,11 @@ def sample_along_bond(
 def make_sample_dataframe(samples: Samples):
     records = []
     num_samples = len(samples)
-    for j, sample in enumerate(samples):
+    percents = np.linspace(0, 100, num=num_samples)
+    for percent, sample in zip(percents, samples):
         records.append(
             {
-                PLOT_X: f"{round(100*(float(j)/num_samples))}%",
+                PLOT_X: f"{round(percent)}%",
                 PLOT_Y: round(sample, 2),
             },
         )
