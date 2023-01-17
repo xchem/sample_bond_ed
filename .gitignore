@@ -67,3 +67,6 @@ venv*
 # further build artifacts
 lockfiles/
 
+# test data
+test_data
+
