@@ -119,7 +119,7 @@ def sample_along_bond_radius(
     bond: Bond,
     num_sample_along_bond=10,
     num_samples_around_bond=100,
-    radius=1.0,
+    radius=0.5,
 ):
     samples_along_bond: Samples = []
     for sample_centre in get_sample_centres(bond, num_sample_along_bond):
