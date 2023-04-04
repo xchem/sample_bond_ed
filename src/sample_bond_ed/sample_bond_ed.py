@@ -157,7 +157,7 @@ def make_sample_dataframe_compare(samples_1: Samples, samples_2: Samples):
             {
                 PLOT_X: f"{round(percent)}%",
                 PLOT_Y: round(sample_1, 2),
-                "structure": 1,
+                "structure": "1",
             },
         )
 
@@ -166,7 +166,7 @@ def make_sample_dataframe_compare(samples_1: Samples, samples_2: Samples):
             {
                 PLOT_X: f"{round(percent)}%",
                 PLOT_Y: round(sample_2, 2),
-                "structure": 2,
+                "structure": "2",
             },
         )
 
