@@ -178,7 +178,12 @@ def make_sample_plot(samples: Samples) -> Plot:
 
     fig, ax = plt.subplots()
 
-    sns.lineplot(data=df, x=PLOT_X, y=PLOT_Y, ax=ax, hue="structure")
+    sns.lineplot(
+        data=df,
+        x=PLOT_X,
+        y=PLOT_Y,
+        ax=ax,
+    )
 
     return fig
 
@@ -188,7 +193,7 @@ def make_sample_plot_compare(samples_1: Samples, samples_2: Samples) -> Plot:
 
     fig, ax = plt.subplots()
 
-    sns.lineplot(data=df, x=PLOT_X, y=PLOT_Y, ax=ax)
+    sns.lineplot(data=df, x=PLOT_X, y=PLOT_Y, ax=ax, hue="structure")
 
     return fig
 
