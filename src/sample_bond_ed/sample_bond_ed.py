@@ -148,8 +148,43 @@ def make_sample_dataframe(samples: Samples):
     return pd.DataFrame(records)
 
 
+def make_sample_dataframe_compare(samples_1: Samples, samples_2: Samples):
+    records = []
+    num_samples = len(samples_1)
+    percents = np.linspace(0, 100, num=num_samples)
+    for percent, sample_1 in zip(percents, samples_1):
+        records.append(
+            {
+                PLOT_X: f"{round(percent)}%",
+                PLOT_Y: round(sample_1, 2),
+                "structure": 1,
+            },
+        )
+
+    for percent, sample_2 in zip(percents, samples_2):
+        records.append(
+            {
+                PLOT_X: f"{round(percent)}%",
+                PLOT_Y: round(sample_2, 2),
+                "structure": 2,
+            },
+        )
+
+    return pd.DataFrame(records)
+
+
 def make_sample_plot(samples: Samples) -> Plot:
     df = make_sample_dataframe(samples)
+
+    fig, ax = plt.subplots()
+
+    sns.lineplot(data=df, x=PLOT_X, y=PLOT_Y, ax=ax, hue="structure")
+
+    return fig
+
+
+def make_sample_plot_compare(samples_1: Samples, samples_2: Samples) -> Plot:
+    df = make_sample_dataframe_compare(samples_1, samples_2)
 
     fig, ax = plt.subplots()
 
@@ -235,6 +270,55 @@ def sample_bond_ed(
     save_plot(plot, output_dir / "bond_ed_sampling.png")
 
 
+def sample_bond_ed_compare(
+    structure_path_1: Path,
+    structure_path_2: Path,
+    xmap_path: Path,
+    output_dir: Path,
+    atom_1_id: AtomID,
+    atom_2_id: AtomID,
+):
+    logger.info(f"Reading structure at path: {structure_path_1}")
+    structure_1: Structure = read_structure(structure_path_1)
+    logger.debug(f"Structure: {structure_1}")
+
+    logger.info(f"Reading structure at path: {structure_path_2}")
+    structure_2: Structure = read_structure(structure_path_2)
+    logger.debug(f"Structure: {structure_2}")
+
+    logger.info(f"Reading structure at path: {xmap_path}")
+    xmap: Xmap = read_map(xmap_path)
+    logger.debug(f"Xmap: {xmap}")
+
+    bond_1: Bond = Bond(
+        atom_2=pos_from_atom_id(atom_2_id, structure_1),
+        atom_1=pos_from_atom_id(atom_1_id, structure_1),
+    )
+
+    logger.info("Determining samples...")
+    samples_1: Samples = sample_along_bond_radius(
+        xmap,
+        bond_1,
+    )
+
+    bond_2: Bond = Bond(
+        atom_1=pos_from_atom_id(atom_1_id, structure_2),
+        atom_2=pos_from_atom_id(atom_2_id, structure_2),
+    )
+
+    logger.info("Determining samples...")
+    samples_2: Samples = sample_along_bond_radius(
+        xmap,
+        bond_2,
+    )
+
+    logger.info("Making plot...")
+    plot: Plot = make_sample_plot_compare(samples_1, samples_2)
+
+    logger.info(f"Saving plot in dir: {output_dir}")
+    save_plot(plot, output_dir / "bond_ed_sampling.png")
+
+
 def sample_bond_ed_radius(
     structure_path: Path,
     xmap_path: Path,
@@ -250,19 +334,30 @@ def sample_bond_ed_radius(
     xmap: Xmap = read_map(xmap_path)
     logger.debug(f"Xmap: {xmap}")
 
-    bond: Bond = Bond(
+    bond_1: Bond = Bond(
         atom_1=pos_from_atom_id(atom_1_id, structure),
         atom_2=pos_from_atom_id(atom_2_id, structure),
     )
 
     logger.info("Determining samples...")
-    samples: Samples = sample_along_bond_radius(
+    samples_1: Samples = sample_along_bond_radius(
         xmap,
-        bond,
+        bond_1,
+    )
+
+    bond_2: Bond = Bond(
+        atom_1=pos_from_atom_id(atom_1_id, structure),
+        atom_2=pos_from_atom_id(atom_2_id, structure),
+    )
+
+    logger.info("Determining samples...")
+    samples_2: Samples = sample_along_bond_radius(
+        xmap,
+        bond_2,
     )
 
     logger.info("Making plot...")
-    plot: Plot = make_sample_plot(samples)
+    plot: Plot = make_sample_plot_compare(samples_1, samples_2)
 
     logger.info(f"Saving plot in dir: {output_dir}")
     save_plot(plot, output_dir / "bond_ed_sampling.png")
@@ -272,7 +367,8 @@ def sample_bond_ed_radius(
 if __name__ == "__main__":
     parser = ArgumentParser()
     # parser.add_argument("--version", action="version", version=__version__)
-    parser.add_argument("--structure_path", type=Path)
+    parser.add_argument("--structure_path_1", type=Path)
+    parser.add_argument("--structure_path_2", type=Path)
     parser.add_argument("--xmap_path", type=Path)
     parser.add_argument("--output_dir", type=Path)
     parser.add_argument(
@@ -291,18 +387,22 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    structure_path: Path = args.structure_path
+    structure_path_1: Path = args.structure_path_1
+    structure_path_2: Path = args.structure_path_2
     xmap_path: Path = args.xmap_path
     output_dir: Path = args.output_dir
     atom_1_id: AtomID = args.atom_1_id
     atom_2_id: AtomID = args.atom_2_id
 
-    logger.info(f"Structure path: {structure_path}")
+    logger.info(f"Structure path: {structure_path_1}")
+    logger.info(f"Structure path: {structure_path_2}")
+
     logger.info(f"Atom 1 ID: {atom_1_id}")
     logger.info(f"Atom 2 ID: {atom_2_id}")
 
-    sample_bond_ed(
-        structure_path,
+    sample_bond_ed_compare(
+        structure_path_1,
+        structure_path_2,
         xmap_path,
         output_dir,
         atom_1_id,
