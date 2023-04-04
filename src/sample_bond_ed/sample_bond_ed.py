@@ -75,6 +75,64 @@ def sample_along_bond(
     return samples
 
 
+def get_sample_centres(bond: Bond, num_sample_along_bond: int):
+    pos_1 = bond.atom_1
+    pos_2 = bond.atom_2
+    sample_pos_array = np.linspace(
+        np.array(
+            [pos_1.x, pos_1.y, pos_1.z],
+        ),
+        np.array([pos_2.x, pos_2.y, pos_2.z]),
+        num=num_sample_along_bond,
+    )
+    return [gemmi.Position(*sample_pos) for sample_pos in sample_pos_array]
+
+
+def get_sample_positions_near_sample_centre(
+    sample_centre: Position, num_samples_around_bond: int, radius: float
+):
+    from numpy.random import default_rng
+
+    rng = default_rng()
+    sample_centre_array = np.array(
+        [
+            sample_centre.x,
+            sample_centre.y,
+            sample_centre.z,
+        ]
+    )
+    initial_sample_array = rng.uniform(
+        low=sample_centre_array - radius,
+        high=sample_centre_array + radius,
+        size=num_samples_around_bond,
+    )
+    distances = np.linalg.norm(
+        initial_sample_array - sample_centre_array, axis=1
+    )
+    sample_array = initial_sample_array[distances < radius]
+
+    return [gemmi.Position(*sample) for sample in sample_array]
+
+
+def sample_along_bond_radius(
+    xmap,
+    bond: Bond,
+    num_sample_along_bond=10,
+    num_samples_around_bond=100,
+    radius=1.0,
+):
+    samples_along_bond: Samples = []
+    for sample_centre in get_sample_centres(bond, num_sample_along_bond):
+        sample_positions = get_sample_positions_near_sample_centre(
+            sample_centre, num_samples_around_bond, radius
+        )
+        samples: Samples = sample_at_positions(xmap, sample_positions)
+        mean_sample = float(np.mean(samples))
+        samples_along_bond.append(mean_sample)
+
+    return samples_along_bond
+
+
 def make_sample_dataframe(samples: Samples):
     records = []
     num_samples = len(samples)
@@ -166,6 +224,39 @@ def sample_bond_ed(
 
     logger.info("Determining samples...")
     samples: Samples = sample_along_bond(
+        xmap,
+        bond,
+    )
+
+    logger.info("Making plot...")
+    plot: Plot = make_sample_plot(samples)
+
+    logger.info(f"Saving plot in dir: {output_dir}")
+    save_plot(plot, output_dir / "bond_ed_sampling.png")
+
+
+def sample_bond_ed_radius(
+    structure_path: Path,
+    xmap_path: Path,
+    output_dir: Path,
+    atom_1_id: AtomID,
+    atom_2_id: AtomID,
+):
+    logger.info(f"Reading structure at path: {structure_path}")
+    structure: Structure = read_structure(structure_path)
+    logger.debug(f"Structure: {structure}")
+
+    logger.info(f"Reading structure at path: {xmap_path}")
+    xmap: Xmap = read_map(xmap_path)
+    logger.debug(f"Xmap: {xmap}")
+
+    bond: Bond = Bond(
+        atom_1=pos_from_atom_id(atom_1_id, structure),
+        atom_2=pos_from_atom_id(atom_2_id, structure),
+    )
+
+    logger.info("Determining samples...")
+    samples: Samples = sample_along_bond_radius(
         xmap,
         bond,
     )
