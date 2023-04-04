@@ -104,7 +104,7 @@ def get_sample_positions_near_sample_centre(
     initial_sample_array = rng.uniform(
         low=sample_centre_array - radius,
         high=sample_centre_array + radius,
-        size=num_samples_around_bond,
+        size=(num_samples_around_bond, 3),
     )
     distances = np.linalg.norm(
         initial_sample_array - sample_centre_array, axis=1
