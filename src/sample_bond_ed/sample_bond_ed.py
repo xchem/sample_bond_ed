@@ -548,7 +548,7 @@ class CLI:
         mean = df.groupby('Chirality')["Mean Positive Electron Density (e Å-3)"].mean()
         std = df.groupby('Chirality')["Mean Positive Electron Density (e Å-3)"].std()
         for x, _m in enumerate(mean):
-            plt.errorbar(x, mean, yerr=std)
+            plt.errorbar(x, mean[x], yerr=std[x])
 
         fig.savefig(output / "EDSwarmPlot.png")
 
