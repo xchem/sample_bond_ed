@@ -529,7 +529,7 @@ class CLI:
                 {
                     "Dataset": dataset,
                     "Chirality": "S",
-                    "Density": density
+                    "Mean Positive Electron Density": density
 
                 }
             )
