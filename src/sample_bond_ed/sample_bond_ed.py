@@ -457,9 +457,12 @@ def intergrate_along_bond(
     print(f"Num Samples: {len(samples)}")
 
     sample_array = np.array(samples)
-    corr = get_corr(samples, calc_samples)
+    calc_sample_array = np.array(calc_samples)
+
+    corr = get_corr(sample_array, calc_sample_array)
 
     # return np.mean(sample_array[sample_array > 0])
+    return corr
 
 class CLI:
     def harold_data(self):
