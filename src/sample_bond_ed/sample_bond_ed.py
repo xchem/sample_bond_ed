@@ -85,7 +85,7 @@ def get_sample_centres(bond: Bond, num_sample_along_bond: int):
         np.array([pos_2.x, pos_2.y, pos_2.z]),
         num=num_sample_along_bond,
     )
-    return [gemmi.Position(*sample_pos) for sample_pos in sample_pos_array][-2:]
+    return [gemmi.Position(*sample_pos) for sample_pos in sample_pos_array]
 
 
 def get_sample_positions_near_sample_centre(
@@ -403,6 +403,20 @@ def sample_bond_ed_radius(
     logger.info(f"Saving plot in dir: {output_dir}")
     save_plot(plot, output_dir / "bond_ed_sampling.png")
 
+def get_predicted_xmap(model, xmap):
+
+    model.cell = xmap.unit_cell
+    model.spacegroup_hm = gemmi.find_spacegroup_by_name("P 1").hm
+    dencalc = gemmi.DensityCalculatorE()
+    dencalc.d_min = 1.0  # *2
+    dencalc.rate = 1.0
+    dencalc.set_grid_cell_and_spacegroup(model)
+    dencalc.put_model_density_on_grid(model[0])
+    # dencalc.add_model_density_to_grid(optimized_structure[0])
+    calc_grid = dencalc.grid
+
+    return calc_grid
+
 def intergrate_along_bond(
     model,
     xmap,
@@ -418,6 +432,10 @@ def intergrate_along_bond(
 
     sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.25)
     print(sample_positions[0])
+
+    # Get the predicted density
+    predicted_xmap = get_predicted_xmap(model, xmap)
+    print([xmap.nu, predicted_xmap.nu])
 
     samples: Samples = sample_at_positions(xmap, sample_positions)
 
