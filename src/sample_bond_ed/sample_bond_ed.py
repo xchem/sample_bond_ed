@@ -543,8 +543,12 @@ class CLI:
 
         # Plot swarm
         fig, ax = plt.subplots()
-        sns.swarmplot(data=df, x="Mean Positive Electron Density (e Å-3)", y="Chirality", ax=ax)
+        sns.swarmplot(data=df, y="Mean Positive Electron Density (e Å-3)", x="Chirality", ax=ax)
         # fig = plot.get_fig()
+        mean = df.groupby('Chirality')["Mean Positive Electron Density (e Å-3)"].mean()
+        std = df.groupby('Chirality')["Mean Positive Electron Density (e Å-3)"].std()
+        plt.errorbar(range(len(mean)), mean, yerr=std)
+
         fig.savefig(output / "EDSwarmPlot.png")
 
 
