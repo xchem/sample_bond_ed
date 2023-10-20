@@ -497,7 +497,7 @@ class CLI:
             xmap = read_map(Path(dataset_info['xmap_path']))
 
             # Get the normal model
-            model_r = read_structure(Path(dataset_info['structure_path_2']))
+            model_r = read_structure(Path(dataset_info['structure_path_1']))
             density = intergrate_along_bond(
                 model_r,
                 xmap,
