@@ -536,6 +536,7 @@ class CLI:
         print(df)
 
         # Generate csv
+        df.to_csv(output / "ED.csv")
 
         # Plot swarm
         plot = sns.swarmplot(data=df, x="Density", y="Chirality")
