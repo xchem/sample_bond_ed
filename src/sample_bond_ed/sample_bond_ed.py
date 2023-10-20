@@ -85,7 +85,7 @@ def get_sample_centres(bond: Bond, num_sample_along_bond: int):
         np.array([pos_2.x, pos_2.y, pos_2.z]),
         num=num_sample_along_bond,
     )
-    return [gemmi.Position(*sample_pos) for sample_pos in sample_pos_array]
+    return [gemmi.Position(*sample_pos) for sample_pos in sample_pos_array][int(num_sample_along_bond/2):]
 
 
 def get_sample_positions_near_sample_centre(
