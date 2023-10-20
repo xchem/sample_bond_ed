@@ -121,12 +121,14 @@ def get_sample_positions_near_samples(
     rng = default_rng()
     sample_centres_array = np.array(
         [
-            sample_centre.x,
-            sample_centre.y,
-            sample_centre.z,
+            [
+                sample_centre.x,
+                sample_centre.y,
+                sample_centre.z,
+            ]
+            for sample_centre
+            in sample_centres
         ]
-        for sample_centre
-        in sample_centres
     )
     min_coord = np.min(sample_centres_array, axis=0)
     max_coord = np.max(sample_centres_array, axis=0)
