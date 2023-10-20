@@ -409,7 +409,7 @@ def get_predicted_xmap(model, xmap):
     model.spacegroup_hm = gemmi.find_spacegroup_by_name("P 1").hm
     dencalc = gemmi.DensityCalculatorE()
     dencalc.d_min = 1.0  # *2
-    dencalc.rate = 1.0
+    dencalc.rate = 2.0
     dencalc.set_grid_cell_and_spacegroup(model)
     dencalc.put_model_density_on_grid(model[0])
     # dencalc.add_model_density_to_grid(optimized_structure[0])
