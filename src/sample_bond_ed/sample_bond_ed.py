@@ -442,10 +442,10 @@ def intergrate_along_bond(
         atom_1=pos_from_atom_id(atom_1_id, model),
         atom_2=pos_from_atom_id(atom_2_id, model),
     )
-    sample_centers = get_sample_centres(bond, num_sample_along_bond)
+    sample_centers = get_sample_centres(bond, num_sample_along_bond)[-2:]
 
-    sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.25)[-2:]
-    print(sample_positions)
+    sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.25)
+    # print(sample_positions)
     # print(sample_positions[0])
 
     # Get the predicted density
