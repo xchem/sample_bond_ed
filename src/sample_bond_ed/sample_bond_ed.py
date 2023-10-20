@@ -444,15 +444,15 @@ def intergrate_along_bond(
     )
     sample_centers = get_sample_centres(bond, num_sample_along_bond)
 
-    sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.5)
-    print(sample_positions[0])
+    # sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.5)
+    # print(sample_positions[0])
 
     # Get the predicted density
     predicted_xmap = get_predicted_xmap(model, xmap)
     print([xmap.nu, predicted_xmap.nu])
 
-    samples: Samples = sample_at_positions(xmap, sample_positions)
-    calc_samples: Samples = sample_at_positions(predicted_xmap, sample_positions)
+    samples: Samples = sample_at_positions(xmap, sample_centers)
+    calc_samples: Samples = sample_at_positions(predicted_xmap, sample_centers)
 
     print(f"Num Samples: {len(samples)}")
 
