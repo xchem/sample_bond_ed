@@ -467,7 +467,7 @@ def intergrate_along_bond(
 
 class CLI:
     def harold_data(self):
-
+        output = Path("harold")
         harold_runs = {
             "8BW3_5S9F_PHIPA-x11637" : {
                 "structure_path_1": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637_4.1_refmac8O.mmcif",
@@ -538,6 +538,9 @@ class CLI:
         # Generate csv
 
         # Plot swarm
+        plot = sns.swarmplot(data=df, x="Density", y="Chirality")
+        fig = plot.get_fig()
+        fig.save_fig(output / "EDSwarmPlot.png")
 
 
 
