@@ -444,25 +444,25 @@ def intergrate_along_bond(
     )
     sample_centers = get_sample_centres(bond, num_sample_along_bond)
 
-    # sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.5)
+    sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.5)
     # print(sample_positions[0])
 
     # Get the predicted density
-    predicted_xmap = get_predicted_xmap(model, xmap)
-    print([xmap.nu, predicted_xmap.nu])
+    # predicted_xmap = get_predicted_xmap(model, xmap)
+    # print([xmap.nu, predicted_xmap.nu])
 
-    samples: Samples = sample_at_positions(xmap, sample_centers)
-    calc_samples: Samples = sample_at_positions(predicted_xmap, sample_centers)
+    samples: Samples = sample_at_positions(xmap, sample_positions)
+    # calc_samples: Samples = sample_at_positions(predicted_xmap, sample_positions)
 
     print(f"Num Samples: {len(samples)}")
 
     sample_array = np.array(samples)
-    calc_sample_array = np.array(calc_samples)
+    # calc_sample_array = np.array(calc_samples)
 
-    corr = get_corr(sample_array, calc_sample_array)
+    # corr = get_corr(sample_array, calc_sample_array)
 
-    # return np.mean(sample_array[sample_array > 0])
-    return corr
+    return np.mean(sample_array)
+    # return corr
 
 class CLI:
     def harold_data(self):
