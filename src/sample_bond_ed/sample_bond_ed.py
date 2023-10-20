@@ -1,4 +1,5 @@
 import dataclasses
+import os
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, NewType
@@ -468,6 +469,8 @@ def intergrate_along_bond(
 class CLI:
     def harold_data(self):
         output = Path("harold")
+        if not output.exists():
+            os.mkdir(output)
         harold_runs = {
             "8BW3_5S9F_PHIPA-x11637" : {
                 "structure_path_1": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637_4.1_refmac8O.mmcif",
