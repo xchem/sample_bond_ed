@@ -543,7 +543,7 @@ class CLI:
 
         # Plot swarm
         fig, ax = plt.subplots()
-        sns.swarmplot(data=df, y="Mean Positive Electron Density (e Å-3)", x="Chirality", ax=ax, c="Chirality")
+        sns.swarmplot(data=df, y="Mean Positive Electron Density (e Å-3)", x="Chirality", ax=ax, hue="Chirality")
         # fig = plot.get_fig()
         mean = df.groupby('Chirality')["Mean Positive Electron Density (e Å-3)"].mean()
         std = df.groupby('Chirality')["Mean Positive Electron Density (e Å-3)"].std()
