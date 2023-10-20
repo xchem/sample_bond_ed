@@ -416,7 +416,7 @@ def intergrate_along_bond(
     )
     sample_centers = get_sample_centres(bond, num_sample_along_bond)
 
-    sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.5)
+    sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.25)
 
     samples: Samples = sample_at_positions(xmap, sample_positions)
 
