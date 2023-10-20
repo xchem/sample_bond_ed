@@ -36,7 +36,7 @@ class Bond:
     atom_2: Position
 
 
-def sample_at_positions(xmap: Xmap, positions: Positions) -> Samples:
+def sample_at_positions(xmap: Xmap, positions: list[Positions]) -> Samples:
     return [xmap.tricubic_interpolation(pos) for pos in positions]
 
 
@@ -110,6 +110,40 @@ def get_sample_positions_near_sample_centre(
         initial_sample_array - sample_centre_array, axis=1
     )
     sample_array = initial_sample_array[distances < radius]
+
+    return [gemmi.Position(*sample) for sample in sample_array]
+
+def get_sample_positions_near_samples(
+    sample_centres: list[Position], num_samples_around_bond: int, radius: float
+):
+    from numpy.random import default_rng
+
+    rng = default_rng()
+    sample_centres_array = np.array(
+        [
+            sample_centre.x,
+            sample_centre.y,
+            sample_centre.z,
+        ]
+        for sample_centre
+        in sample_centres
+    )
+    min_coord = np.min(sample_centres_array, axis=0)
+    max_coord = np.max(sample_centres_array, axis=0)
+
+    initial_sample_array = rng.uniform(
+        low=min_coord - radius,
+        high=max_coord + radius,
+        size=(num_samples_around_bond, 3),
+    )
+    min_distances = []
+    for coord in initial_sample_array:
+        distances = np.linalg.norm(
+            coord.reshape(-1,3) - sample_centres_array.reshape(-1,3), axis=1
+        )
+        min_dist = np.min(distances)
+        min_distances.append(min_dist)
+    sample_array = initial_sample_array[np.array(min_distances) < radius]
 
     return [gemmi.Position(*sample) for sample in sample_array]
 
@@ -367,49 +401,147 @@ def sample_bond_ed_radius(
     logger.info(f"Saving plot in dir: {output_dir}")
     save_plot(plot, output_dir / "bond_ed_sampling.png")
 
+def intergrate_along_bond(
+    model,
+    xmap,
+    atom_1_id,
+    atom_2_id,
+    num_sample_along_bond=100
+):
+    bond: Bond = Bond(
+        atom_1=pos_from_atom_id(atom_1_id, model),
+        atom_2=pos_from_atom_id(atom_2_id, model),
+    )
+    sample_centers = get_sample_centres(bond, num_sample_along_bond)
+
+    sample_positions = get_sample_positions_near_samples(sample_centers, 10000, 0.5)
+
+    samples: Samples = sample_at_positions(xmap, sample_positions)
+
+    print(f"Num Samples: {len(samples)}")
+
+    return np.mean(samples)
+
+class CLI:
+    def harold_data(self):
+
+        harold_runs = {
+            "8BW3_5S9F_PHIPA-x11637" : {
+                "structure_path_1": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637_4.1_refmac8O.mmcif",
+                "structure_path_2": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637_4.1_refmac8O_S.mmcif",
+                "xmap_path": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637-event_1_1-BDC_0.4_map.native.ccp4",
+                "atom_1_id": "A/1501/C2",
+                "atom_2_id": "A/1501/C1"
+            },
+            "8BW3_5S9H_PHIPA-x12337": {
+                "structure_path_1": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337_TRUE_2O.mmcif",
+                "structure_path_2": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337_TRUE_2O_S.mmcif",
+                "xmap_path": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337-event_1_1-BDC_0.35_map.native.ccp4",
+                "atom_1_id": "A/1501/C2",
+                "atom_2_id": "A/1501/C1"
+            },
+            "8BW4_5S9I_PHIPA-x12340": {
+                "structure_path_1": "stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x12340_16.1_refmac10O.mmcif",
+                "structure_path_2": "stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x12340_16.1_refmac10O_S.mmcif",
+                "xmap_path": "stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x12340-event_1_1-BDC_0.51_map.native.ccp4",
+                "atom_1_id": "A/1501/C2",
+                "atom_2_id": "A/1501/C1"
+            }
+        }
+
+        # Get the intergrated ED around
+        records = []
+        for dataset, dataset_info in harold_runs.items():
+            xmap = read_map(Path(dataset_info['xmap_path']))
+
+            # Get the normal model
+            model_r = read_structure(Path(dataset_info['structure_path_2']))
+            density = intergrate_along_bond(
+                model_r,
+                xmap,
+                dataset_info['atom_1_id'],
+                dataset_info['atom_2_id']
+            )
+            records.append(
+                {
+                    "Dataset": dataset,
+                    "Chirality": "R",
+                    "Density": density
+
+                }
+            )
+
+            # Get the s model
+            model_s = read_structure(Path(dataset_info['structure_path_2']))
+            density = intergrate_along_bond(
+                model_s,
+                xmap,
+                dataset_info['atom_1_id'],
+                dataset_info['atom_2_id']
+            )
+            records.append(
+                {
+                    "Dataset": dataset,
+                    "Chirality": "S",
+                    "Density": density
+
+                }
+            )
+
+        # Generate table
+        df = pd.DataFrame(records)
+        print(df)
+
+        # Generate csv
+
+        # Plot swarm
+
+
+
 
 # test with: python -m sample_bond_ed
 if __name__ == "__main__":
-    parser = ArgumentParser()
-    # parser.add_argument("--version", action="version", version=__version__)
-    parser.add_argument("--structure_path_1", type=Path)
-    parser.add_argument("--structure_path_2", type=Path)
-    parser.add_argument("--xmap_path", type=Path)
-    parser.add_argument("--output_dir", type=Path)
-    parser.add_argument(
-        "--atom_1_id",
-        help="""
-        A selector for a single atom of the form CHAIN/RESIDUE/NAME, 
-        such as \"C/LIG/C1\"
-        """,
-    )
-    parser.add_argument(
-        "--atom_2_id",
-        help="""
-        A selector for a single atom of the form CHAIN/RESIDUE/NAME, 
-        such as \"C/LIG/C1\"
-        """,
-    )
-    args = parser.parse_args()
-
-    structure_path_1: Path = args.structure_path_1
-    structure_path_2: Path = args.structure_path_2
-    xmap_path: Path = args.xmap_path
-    output_dir: Path = args.output_dir
-    atom_1_id: AtomID = args.atom_1_id
-    atom_2_id: AtomID = args.atom_2_id
-
-    logger.info(f"Structure path: {structure_path_1}")
-    logger.info(f"Structure path: {structure_path_2}")
-
-    logger.info(f"Atom 1 ID: {atom_1_id}")
-    logger.info(f"Atom 2 ID: {atom_2_id}")
-
-    sample_bond_ed_compare(
-        structure_path_1,
-        structure_path_2,
-        xmap_path,
-        output_dir,
-        atom_1_id,
-        atom_2_id,
-    )
+    fire.Fire(CLI)
+    # parser = ArgumentParser()
+    # # parser.add_argument("--version", action="version", version=__version__)
+    # parser.add_argument("--structure_path_1", type=Path)
+    # parser.add_argument("--structure_path_2", type=Path)
+    # parser.add_argument("--xmap_path", type=Path)
+    # parser.add_argument("--output_dir", type=Path)
+    # parser.add_argument(
+    #     "--atom_1_id",
+    #     help="""
+    #     A selector for a single atom of the form CHAIN/RESIDUE/NAME,
+    #     such as \"C/LIG/C1\"
+    #     """,
+    # )
+    # parser.add_argument(
+    #     "--atom_2_id",
+    #     help="""
+    #     A selector for a single atom of the form CHAIN/RESIDUE/NAME,
+    #     such as \"C/LIG/C1\"
+    #     """,
+    # )
+    # args = parser.parse_args()
+    #
+    # structure_path_1: Path = args.structure_path_1
+    # structure_path_2: Path = args.structure_path_2
+    # xmap_path: Path = args.xmap_path
+    # output_dir: Path = args.output_dir
+    # atom_1_id: AtomID = args.atom_1_id
+    # atom_2_id: AtomID = args.atom_2_id
+    #
+    # logger.info(f"Structure path: {structure_path_1}")
+    # logger.info(f"Structure path: {structure_path_2}")
+    #
+    # logger.info(f"Atom 1 ID: {atom_1_id}")
+    # logger.info(f"Atom 2 ID: {atom_2_id}")
+    #
+    # sample_bond_ed_compare(
+    #     structure_path_1,
+    #     structure_path_2,
+    #     xmap_path,
+    #     output_dir,
+    #     atom_1_id,
+    #     atom_2_id,
+    # )
