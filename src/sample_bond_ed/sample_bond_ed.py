@@ -543,7 +543,7 @@ class CLI:
 
         # Plot swarm
         fig, ax = plt.subplots()
-        sns.swarmplot(data=df, x="Density", y="Chirality", ax=ax)
+        sns.swarmplot(data=df, x="Mean Positive Electron Density (e Å-3)", y="Chirality", ax=ax)
         # fig = plot.get_fig()
         fig.savefig(output / "EDSwarmPlot.png")
 
