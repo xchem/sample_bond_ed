@@ -544,7 +544,7 @@ class CLI:
         # Plot swarm
         fig, ax = plt.subplots()
         sns.swarmplot(data=df, x="Density", y="Chirality", ax=ax)
-        fig = plot.get_fig()
+        # fig = plot.get_fig()
         fig.save_fig(output / "EDSwarmPlot.png")
 
 
