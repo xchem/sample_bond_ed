@@ -417,6 +417,20 @@ def get_predicted_xmap(model, xmap):
 
     return calc_grid
 
+def get_corr(masked_event_map_vals, masked_calc_vals):
+    event_map_mean = np.mean(masked_event_map_vals)
+    calc_map_mean = np.mean(masked_calc_vals)
+    delta_event_map = masked_event_map_vals - event_map_mean
+    delta_calc_map = masked_calc_vals - calc_map_mean
+    nominator = np.sum(delta_event_map * delta_calc_map)
+    denominator = np.sqrt(
+        np.sum(np.square(delta_event_map)) * np.sum(np.square(delta_calc_map))
+    )
+
+    corr = nominator / denominator
+
+    return corr
+
 def intergrate_along_bond(
     model,
     xmap,
@@ -438,12 +452,14 @@ def intergrate_along_bond(
     print([xmap.nu, predicted_xmap.nu])
 
     samples: Samples = sample_at_positions(xmap, sample_positions)
+    calc_samples: Samples = sample_at_positions(predicted_xmap, sample_positions)
 
     print(f"Num Samples: {len(samples)}")
 
     sample_array = np.array(samples)
+    corr = get_corr(samples, calc_samples)
 
-    return np.mean(sample_array[sample_array > 0])
+    # return np.mean(sample_array[sample_array > 0])
 
 class CLI:
     def harold_data(self):
