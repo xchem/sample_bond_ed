@@ -536,7 +536,7 @@ def get_protein_points(
 
 
     mask_array = np.array(mask_grid, copy=False)
-    dmap_array = np.array(mask_grid, copy=False)
+    dmap_array = np.array(dmap, copy=False)
 
     return dmap_array[mask_array == 1]
 
