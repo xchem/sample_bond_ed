@@ -466,34 +466,107 @@ def intergrate_along_bond(
     return np.mean(sample_array[sample_array>0])
     # return corr
 
-class CLI:
-    def harold_data(self):
-        output = Path("harold")
-        if not output.exists():
-            os.mkdir(output)
-        harold_runs = {
+harold_runs = {
             "8BW3_5S9F_PHIPA-x11637" : {
                 "structure_path_1": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637_4.1_refmac8O.mmcif",
                 "structure_path_2": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637_4.1_refmac8O_S.mmcif",
-                "xmap_path": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637-event_1_1-BDC_0.4_map.native.ccp4",
+                "event_path": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637-event_1_1-BDC_0.4_map.native.ccp4",
+                'mean_map': 'stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x11637-ground-state-average-map.native.ccp4',
                 "atom_1_id": "A/1501/C2",
                 "atom_2_id": "A/1501/C1"
             },
             "8BW3_5S9H_PHIPA-x12337": {
                 "structure_path_1": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337_TRUE_2O.mmcif",
                 "structure_path_2": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337_TRUE_2O_S.mmcif",
-                "xmap_path": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337-event_1_1-BDC_0.35_map.native.ccp4",
+                "event_path": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337-event_1_1-BDC_0.35_map.native.ccp4",
+                'mean_map': 'stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x12337-ground-state-average-map.native.ccp4',
                 "atom_1_id": "A/1501/C2",
                 "atom_2_id": "A/1501/C1"
             },
             "8BW4_5S9I_PHIPA-x12340": {
                 "structure_path_1": "stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x12340_16.1_refmac10O.mmcif",
                 "structure_path_2": "stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x12340_16.1_refmac10O_S.mmcif",
-                "xmap_path": "stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x12340-event_1_1-BDC_0.51_map.native.ccp4",
+                "event_path": "stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x12340-event_1_1-BDC_0.51_map.native.ccp4",
+                'mean_map': 'stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12340-final_files/PHIPA-x12340-ground-state-average-map.native.ccp4',
                 "atom_1_id": "A/1501/C2",
                 "atom_2_id": "A/1501/C1"
             }
         }
+
+RESIDUE_NAMES = ["ALA",
+                 "ARG",
+                 "ASN",
+                 "ASP",
+                 "CYS",
+                 "GLN",
+                 "GLU",
+                 "HIS",
+                 "ILE",
+                 "LEU",
+                 "LYS",
+                 "MET",
+                 "PHE",
+                 "PRO",
+                 "SER",
+                 "THR",
+                 "TRP",
+                 "TYR",
+                 "VAL",
+                 "GLY",
+                 ]
+
+def get_protein_points(
+        st,
+        dmap
+):
+    mask_grid = gemmi.Int8Grid(dmap.nu, dmap.nv, dmap.nw)
+    mask_grid.spacegroup = gemmi.find_spacegroup_by_name("P 1")
+    mask_grid.set_unit_cell(dmap.unit_cell)
+
+    for model in st:
+        for chain in model:
+            for res in chain:
+                if res.name in RESIDUE_NAMES:
+                    for atom in res:
+                        mask_grid.set_points_around(
+                            atom.pos,
+                            radius=0.5,
+                            value=1
+                        )
+
+
+    mask_array = np.array(mask_grid, copy=False)
+    dmap_array = np.array(mask_grid, copy=False)
+
+    return dmap_array[mask_array == 1]
+
+class CLI:
+
+    def get_predicted_error(self):
+        for dataset, dataset_info in harold_runs.items():
+            event_map = read_map(Path(dataset_info['event_path']))
+            mean_map = read_map(Path(dataset_info['mean_map']))
+
+            # Get the r model
+            st_r = read_structure(Path(dataset_info['structure_path_1']))
+
+            # Get the s model
+            st_s = read_structure(Path(dataset_info['structure_path_2']))
+
+            # Get the model density
+            event_map_protein_points = get_protein_points(st_r, event_map)
+            mean_map_protein_points = get_protein_points(st_r, mean_map)
+
+            print(np.std(event_map_protein_points-mean_map_protein_points))
+
+
+
+
+    def harold_data(self):
+        output = Path("harold")
+        if not output.exists():
+            os.mkdir(output)
+
 
         # Get the intergrated ED around
         records = []
