@@ -557,7 +557,7 @@ class CLI:
             event_map_protein_points = get_protein_points(st_r, event_map)
             mean_map_protein_points = get_protein_points(st_r, mean_map)
 
-            print(np.std(event_map_protein_points-mean_map_protein_points))
+            print(f"Dataset {dataset}: {np.std(event_map_protein_points-mean_map_protein_points)}")
 
 
 
