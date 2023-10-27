@@ -471,7 +471,7 @@ harold_runs = {
                 "structure_path_1": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637_4.1_refmac8O.mmcif",
                 "structure_path_2": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637_4.1_refmac8O_S.mmcif",
                 "event_path": "stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637-event_1_1-BDC_0.4_map.native.ccp4",
-                'mean_map': 'stero_final_files_incl_S/8BW4_5S9I_PHIPA-x11637-final_files/PHIPA-x11637-ground-state-average-map.native.ccp4',
+                'mean_map': 'stero_final_files_incl_S/8BW3_5S9F_PHIPA-x11637-final_files/PHIPA-x11637-ground-state-average-map.native.ccp4',
                 "atom_1_id": "A/1501/C2",
                 "atom_2_id": "A/1501/C1"
             },
@@ -479,7 +479,7 @@ harold_runs = {
                 "structure_path_1": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337_TRUE_2O.mmcif",
                 "structure_path_2": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337_TRUE_2O_S.mmcif",
                 "event_path": "stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337-event_1_1-BDC_0.35_map.native.ccp4",
-                'mean_map': 'stero_final_files_incl_S/8BW4_5S9I_PHIPA-x12337-final_files/PHIPA-x12337-ground-state-average-map.native.ccp4',
+                'mean_map': 'stero_final_files_incl_S/8BW3_5S9H_PHIPA-x12337-final_files/PHIPA-x12337-ground-state-average-map.native.ccp4',
                 "atom_1_id": "A/1501/C2",
                 "atom_2_id": "A/1501/C1"
             },
